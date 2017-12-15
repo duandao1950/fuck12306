@@ -9,10 +9,8 @@
 from PIL import Image
 from PIL import ImageFilter
 import urllib
-import urllib2
 import requests
 import re
-import json
 
 # hack CERTIFICATE_VERIFY_FAILED
 # https://github.com/mtschirs/quizduellapi/issues/2
@@ -27,7 +25,7 @@ pic_url = "https://kyfw.12306.cn/otn/passcodeNew/getPassCodeNew?module=login&ran
 
 
 def get_img():
-    resp = urllib.urlopen(pic_url)
+    resp = urllib.request.urlopen(pic_url)
     raw = resp.read()
     with open("./tmp.jpg", 'wb') as fp:
         fp.write(raw)
@@ -104,7 +102,7 @@ def ocr_question_extract(im):
     try:
         import pytesseract
     except:
-        print "[ERROR] pytesseract not installed"
+        print("[ERROR] pytesseract not installed")
         return
     im = im.crop((127, 3, 260, 22))
     im = pre_ocr_processing(im)
@@ -137,8 +135,8 @@ def binarize(im, thresh=120):
     assert 0 < thresh < 255
     assert im.mode == 'L'
     w, h = im.size
-    for y in xrange(0, h):
-        for x in xrange(0, w):
+    for y in range(0, h):
+        for x in range(0, w):
             if im.getpixel((x,y)) < thresh:
                 im.putpixel((x,y), 0)
             else:
@@ -149,12 +147,12 @@ if __name__ == '__main__':
     im = get_img()
     #im = Image.open("./tmp.jpg")
     try:
-        print 'OCR Question:', ocr_question_extract(im)
+        print('OCR Question:', ocr_question_extract(im))
     except Exception as e:
-        print '<OCR failed>', e
+        print('<OCR failed>', e)
     for y in range(2):
         for x in range(4):
             im2 = get_sub_img(im, x, y)
 
             result = baidu_stu_lookup(im2)
-            print (y,x), result
+            print((y,x), result)
